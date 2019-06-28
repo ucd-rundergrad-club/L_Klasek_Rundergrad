@@ -1,0 +1,195 @@
+---
+title: "Swirl Notes"
+author: "Laura Klasek"
+date: "6/27/2019"
+output: html_document
+---
+
+To load swirl (must do each time you reload R): library(swirl)
+To enter swirl: swirl() 
+Follow prompts until swirl asks you to install a course, then select 1 (R Programming)
+Choose course 1 (R Programming)
+From the lesson menu, work through
+1. Basic Building Blocks
+(You can Skip 2)
+3. Sequences of Numbers
+4. Vectors
+5. Missing Values
+6. Subsetting Vectors
+7. Matrices and Data Frames
+8. Logic (On this one you can stop if after you get to the 52% completion point)
+(You can skip 9-11 for now)
+12. Looking at Data
+
+```{r}
+library(swirl)
+```
+
+```{r}
+swirl()
+```
+You can exit swirl and return to the R prompt (>) at any time by pressing the Esc key. If you are
+| already at the prompt, type bye() to exit and save your progress. When you exit properly, you'll see a
+| short message letting you know you've done so.
+
+| When you are at the R prompt (>):
+| -- Typing skip() allows you to skip the current question.
+| -- Typing play() lets you experiment with R on your own; swirl will ignore what you do...
+| -- UNTIL you type nxt() which will regain swirl's attention.
+| -- Typing bye() causes swirl to exit. Your progress will be saved.
+| -- Typing main() returns you to swirl's main menu.
+| -- Typing info() displays these options again.
+
+
+#### 1: Basic Building Blocks
+data structure - any object that contains data
+vector - simplest type of data structure (this is not a definition)
+  create vectors with c() [concatonate or combine]
+      uses comma separated lists
+      other vectors can be combined
+  numeric vectors can be used in arithmetic expressions
+
+arithmetic expressions: +, -, /, *,  ^ (for exponents), sqrt() for square root, and abs() for absolute value
+  if using a vector within sqrt(), will act independently on each item in vector
+  if two vectors are the same length, R performs arithmetic operation element-by-element
+  if vectors are different lengths, R recycles shorter vector
+  remember that numeric values are vectors of length 1
+  
+####2. Workspace and Files
+[I know this is optional, but I'm curious.]
+getwd() -- get working directory
+ls() -- list all objects (i.e. assigned thingamajiggers) in local workspace
+list.files() -- list all files in your working directory
+dir() -- list all files in your working directory (same as list.files())
+args() -- determines the arguments of a function when its called upon that function
+dir.create() -- creates directory in the current working directory
+    arguments: directory name as string
+    to create nested directories, enter file path and set recursive argument to TRUE
+setwd() -- set working directory
+file.create() -- creates file, filename as string
+file.exists() -- checkes to see if file (given as string) exists in the working directory
+file.info() -- returns size, whether it is a directory, then more complicated properties
+    mode -- file permissions
+    mtime -- modification time
+    ctime - 'last status change'
+    atime - last access times
+    exe -- what kind of executable (may be no)
+    
+    **can use $ to grab specific items** (if know the thing looked for)
+    
+file.rename(old name, new name) -- renames a file (names given as strings)
+file.copy(source, name for copy) -- copies a file
+file.path() -- provides relative file path
+
+####3. Sequences of Numbers
+n:c -- gives sequence of numbers between n and c, including n and c, increasing in increments of 1
+seq() -- gives sequence of numbers
+    n, c -- from here to there
+    by -- increment
+    length -- length of the series to create
+length() -- returns length of a thing
+to create vector from 1 to N, where N is the length of my_seq
+    1:length(my_seq)
+    OR
+    seq(along.with = my_seq)
+    OR
+    seq_along()
+rep() -- creates vector that replicates first arg as many times as times= arg says
+    to repeat elements of a vector passed in, use each= instead of times=
+
+####4. Vectors
+atomic vector -- contains exactly one data type
+  types: numeric, logical, character, integer, complex
+list -- may contain multiple data types
+
+logical operators: <, >, <=, >=, == (exact equality), != (inequality)
+A | B -- whether at least one of A or B is true [UNION]
+A & B -- whether both true [INTERSECTION]
+!A -- negation of A
+
+paste() -- stitches elements of character vector into one continuous string; also stiches elements of multiple character vectors
+  collapse = what to put between each element
+  sep = what to put between elements of vectors that are being slammed together
+  coerces numerics into characters
+  
+####5. Missing Values
+NA = any value that is missing or not available
+operations involving NA generally yield NA as result
+rnorm(integer) -- returns vector with [integer] draws from standard normal distribution
+sample() -- takes sample from given object/vector/c(vectors) of specified size; has argument for replacement
+is.na(vector) -- tells whether each element of a vector is NA
+be CAUTIOUS when using logical expressions where NAs are around, since NAs can cause havoc there
+in R, TRUE = 1 and FALSE = 0, so sum(vector_with_NA) will return count of TRUEs and thus count of NA
+NaN -- not a number (i.e. if you divide by zero)
+Inf -- infinity
+
+####6. Subsetting Vectors
+R uses one-based indexing, not zero-based
+"index vector" subset -- use x[a:b] to subset vector x from a index to be index
+    logical vectors
+      call is.na() or !is.na() on the vector to be subset, which returns a vector of equal length with TRUE for NA (or not NA, depending) -- vector then subsets on indexes that are TRUE
+      call a condition (i.e. y > 0) which returns a vector of TRUE/FALSE, subsets on indexes that are TRUE
+      if NAs included, includes NAs in resulting vector
+    vectors of positive integers
+      as noted, R has one-based index
+      positive integers return the values with the index corresponding to the integer
+    vectors of negative integers
+      negative integers return all elements EXCEPT those given as negative
+      shorthand: put the '-' in front of the c()
+    vectors of character strings
+      named elements -- c(foo = 11, bar = 2, norf = NA) -- the names are included
+      names(vector) -- returns the names of the elements in the called vector; can also be used to add names by calling and assigning a character of names
+      identical() -- tests if two vectors [objects] are identical
+      
+
+####7. Matrices and Data Frames
+matrices -- contain only single class of data
+data frame -- contain single or multiple classes of data
+
+dim() -- returns "dimensions" of object OR sets the dimensions of an R object
+  1. to return, call dim(object) 
+  2. to set, call dim(object) and assign a vector of dimensions c(rows, columns)
+  vectors do not have dimensions -- use length()
+  first number = rows, second number = columns
+  attributes() will also give you dimensions
+
+class() -- returns the class of object
+
+matrix(data = ?, nrows = , ncols = ) -- makes a matrix
+
+cbind() -- combines columns
+
+data.frame(objects) -- makes a data frame
+
+colnames() -- returns column names OR sets the column names of an R object
+
+
+####8. Logic
+logical expressions can be grouped by parenthesis to specify order of evaluation
+`==` equals operator -- tests whether two boolean or number values are equal
+`!=` not equals operator -- tests whether two boolean or number values are NOT equal
+! NOT operator -- negates logical expressions (i.e. TRUE becomes FALSE)
+
+& (&&) AND operator -- left and right operands TRUE, entire expression is TRUE
+  & evalutes across a vector
+  && only evaluates first member of vector
+| (||) OR operator -- if left or right operand TRUE, entire expression true
+  | evaluates across a vector
+  || evalutes first member of vector
+
+order of operations
+  AND evaluated before OR
+  
+xor -- exclusive OR
+
+####12. Looking at Data
+names(object) -- returns character vector of column names
+head(object, #) -- returns specified number of rows (default is 6) from beginning of data frame
+tail(object, #) -- returns specified number of rows (default is 6) from end of data frame
+summary() -- 
+  numeric data -- get minimum, 1st quartile, median, mean, 3rd quartile, maximum
+  categorical variable (i.e. factor) -- get number of times each value occurs in the data
+table(object$column name) -- return full list of factors with counts
+str() -- structure
+  class: dimensions
+  $each column name : class, preview
