@@ -7,7 +7,7 @@ output:
     keep_md: yes
 ---
 
-###1. Introduction
+# 1. Introduction
 import -- loading data into R
 
 wrangle
@@ -27,44 +27,19 @@ Packages and databases to install: tidyverse (pre-installed), nycflights13, gapm
 
 *Note: tidyverse_update() checks for updates
 
-###Explore
-####3. Data visualization
-####3.2 First steps
+
+# 3. Data visualization
+## 3.2 First steps
 
 ```r
 library(tidyverse)
-```
-
-```
-## Registered S3 methods overwritten by 'ggplot2':
-##   method         from 
-##   [.quosures     rlang
-##   c.quosures     rlang
-##   print.quosures rlang
-```
-
-```
-## -- Attaching packages ----------- tidyverse 1.2.1 --
-```
-
-```
-## v ggplot2 3.1.1     v purrr   0.3.2
-## v tibble  2.1.1     v dplyr   0.8.1
-## v tidyr   0.8.3     v stringr 1.4.0
-## v readr   1.3.1     v forcats 0.4.0
-```
-
-```
-## -- Conflicts -------------- tidyverse_conflicts() --
-## x dplyr::filter() masks stats::filter()
-## x dplyr::lag()    masks stats::lag()
 ```
 
 with ggplot, start with function ggplot(DATASET)
 then add layers (e.g. geom_point())
 each geom function takes a mapping argument, always paired with aes() which has x and y arguments to specify varabiles
 
-3.2.4 Exercises
+### 3.2.4 Exercises
 1. Run ggplot(data = mpg). What do you see?
 
 ```r
@@ -123,7 +98,7 @@ scatter_2
 ![](datavis_w2_files/figure-html/3.2.4.5-1.png)<!-- -->
 Some classes contain cars with multiple drive types.  Also, neither of these are continuous variables.
 
-####3.3 Aesthetic Mappings
+## 3.3 Aesthetic Mappings
 aesthetic - a visual property of an object on the plot (i.e. the size, shape, color)
 associate the name of the aesthetic to the name of the variable inside aes()
 scaling - ggplot2's assignment of a unique value to the variable
@@ -138,7 +113,7 @@ ggplot considers x and y locations also aesthetics, which I kind of disagree wit
 
 you can also set the aesthetic properties (color = "blue") manually if it is an argument of the geom() function [not the aes() function]
 
-3.3.1 Exercises
+### 3.3.1 Exercises
 1. What’s gone wrong with this code? Why are the points not blue?
 "Color" is an argument of the aes() function, not the geom() function, so it's trying to assign a variable "blue" to color and failing.
 
@@ -211,13 +186,13 @@ Q3316
 If you give a logical statement or condition to the aesthetic mapping, it colors the result of said statement.
 
 
-####3.4 Common problems
+## 3.4 Common problems
 + has to come at the end of the line, not the start
 ( and ) are not matched
 typos
 read the error message and Google it
 
-####3.5 Facets
+## 3.5 Facets
 facets - subplots that each display one subset of the data
 facet_wrap(~ VARIABLE NAME)
 "~ VARIABLE NAME" is a formula
@@ -236,7 +211,7 @@ ggplot(data = mpg) +
 
 ![](datavis_w2_files/figure-html/unnamed-chunk-1-1.png)<!-- -->
 
-3.5.1 Exercises
+### 3.5.1 Exercises
 1. What happens if you facet on a continuous variable?
 
 ```r
@@ -291,7 +266,7 @@ ggplot(data = mpg) +
 6. When using facet_grid() you should usually put the variable with more unique levels in the columns. Why?
 It squishes less?
 
-####3.6 Geometric objects
+## 3.6 Geometric objects
 geom - geometrical object that a plot uses to represent data
 
 Different geoms have different mappable aesthetics: e.g. geom_smooth has linetype
@@ -359,7 +334,7 @@ ggplot(data = mpg, mapping = aes(x = displ, y = hwy)) +
 
 ![](datavis_w2_files/figure-html/unnamed-chunk-6-1.png)<!-- -->
 
-3.6.1 Exercises
+### 3.6.1 Exercises
 1. What geom would you use to draw a line chart? A boxplot? A histogram? An area chart?
 line chart -- geom_smooth()
 boxplot -- geom_boxplot()
@@ -430,7 +405,7 @@ bottomright2
 
 ![](datavis_w2_files/figure-html/unnamed-chunk-8-1.png)<!-- -->
 
-####3.7 Statistical transformations
+## 3.7 Statistical transformations
 bar charts, histograms, frequency polygons bin data and plot bin counts
 smoothers fit model and plot model predictions
 boxplots compute summary and display confusing box
@@ -443,17 +418,25 @@ use stat explicitly when:
 2. override default mapping from transformed variables to aesthetics (e.g. want proportion instead of count)
 3. draw greater attention: stat_summary()
 
-####3.8 Position adjustments
+## 3.8 Position adjustments
 identity -- places each object where it falls in the context of the graph (overlaps bars, have to set alpha or fill = NA)
 stack -- stacks bars within each bar
 fill -- makes each bar the same height, easier to compare proportions
 dodge -- overlapping objects directly beside each other; compares individual values
 jitter -- adds small amount of random noise to spread points out
 
-####3.9 Coordinate system
+## 3.9 Coordinate system
 coord_flip() - switches x and y axes
 coord_quickmap() -- sets aspect ratio for maps
 coord_polar() -- polar coordinates
 
-####3.10 The layered grammar of graphics
+## 3.10 The layered grammar of graphics
 summary: ggplot is awesome
+
+
+## Notes
+```
+This block can format the code but will not run -- delete the {r}
+```
+
+{r setup, message = FALSE} -- this won't spit out the entire damn
