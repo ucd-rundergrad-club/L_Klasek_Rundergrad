@@ -56,7 +56,7 @@ There are 234 rows and 11 columns in mpg.
 ```
 The drv variable describes the type of drive in the car: front-wheel (f), rear wheel (r), or four-wheel (4wd)
 
-4. Make a scatterplot of hwy vs cyl.  (Interpreted as x versus y)
+4. Make a scatterplot of hwy vs cyl.  (Interpreted as x versus y)  
 hwy - highway miles per gallon
 cyl - number of cylinders
 __Why is hwy being used as the x?__
@@ -269,7 +269,7 @@ ggplot(data = mpg, mapping = aes(x = displ, y = hwy, color = drv)) +
 
 Oops.  geom_smooth inherits the color aesthetic as well, so the trendlines are for each type of drive, not a global trendline
 
-3. What does show.legend = FALSE do? What happens if you remove it?
+3. What does show.legend = FALSE do? What happens if you remove it?  
 Why do you think I used it earlier in the chapter?
 show.legend = FALSE removes the automatically generated legend that an aesthetic mapping creates.  It was likely not used in the example above to highlight the similarities between the group mapping and the color mapping.  Also to make that graph fit better in a row with the others.
 
