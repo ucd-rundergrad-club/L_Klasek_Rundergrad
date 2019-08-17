@@ -1,0 +1,302 @@
+---
+title: "R Notebook"
+output:
+  html_document:
+    df_print: paged
+---
+# Exploratory Data Analysis
+```{r}
+library(tidyverse)
+library(nycflights13)
+```
+
+## 7.1 Introduction
+"EDA" 
+1. Generate questions about your data.  
+2. Search for answers by visualising, transforming, and modelling your data.  
+3. Use what you learn to refine your questions and/or generate new questions.  
+
+"state of mind"
+
+## 7.2 Questions
+Two questions that will always be useful: 
+1. What type of variation occurs within my variables?  
+2. What type of covariation occurs between my variables?  
+
+variable -- a quantity, quality, or property you can measure
+value -- the state of a variable when you measure it (may change from measurement to measurement)
+observation - set of measurements made under similar conditions 
+tabular data -- a set of values, each associated with a variable and an observation 
+
+## 7.3 Variation 
+variation - the tendency of the values of a variable to change from measurement to measurement
+** every ** measurement will include a small amount of error in continuous variables
+categorical variables will vary across different subjects
+### 7.3.1 Visualizing distributions  
+categorical -- can only take one of a small set of variables; usually factors or character vectors
+bar chart or dplyr::count()
+
+continuous -- can take any of an infinite set of ordered values
+histogram
+set intervals in a histogram with binwidth argument
+explore a variety of binwidths when working with histograms
+geom_freqpoly() does the same calculation by uses lines
+### 7.3.2 Typical values
+What values are the most common?  Why?  
+What values are rare?  Why?  Does that match your expectations?  
+Can you see any unusual patterns?  What might explain them?  
+
+If there are clusters of similar values in data == subgroups  
+How are observations within clusters similar to each other?  
+How are observations in separate clusters different from each other?  
+### 7.3.3 Unusual values
+outlier -- observation that is unusual and doesn't seem to fit the pattern
+can be hard to see on graph
+coord_cartesian() -- sets ylim and xlim to zoom in
+setting with xlim() or ylim() throws out data outside the limits
+
+good practice to repeat your analysis with and without the outliers
+-- minimal effect on the results and can't figure out why they are > remove them
+-- substantial effect on results -> don't drop them, figure out what caused them, disclose that you removed them in your writeup
+
+### 7.3.4 Exercises
+1. 
+```{r}
+(ggplot(diamonds, aes(x = x)) +
+   geom_histogram(binwidth = 0.01)
+)
+(ggplot(diamonds, aes(x = y)) +
+   geom_histogram(binwidth = 0.01) +
+    coord_cartesian(xlim = c(0, 10))
+)
+(ggplot(diamonds, aes(x = z)) +
+    geom_histogram(binwidth = 0.2) +
+    coord_cartesian(xlim = c(1, 8))
+)
+```
+
+The values of x and y are more similar to each other, so they are more likely to be length and width.
+
+3. 
+```{r}
+(ggplot(diamonds, aes(x = price, color = cut)) +
+   geom_histogram(binwidth = 100) +
+   coord_cartesian(ylim = c(0, 100))
+)
+```
+
+There are no diamonds that cost between 1460 and 1540.  I have no idea why.
+Most diamonds cost 1000 (with many that are less than that), pretty much nothing less than 250.  There is another peak around $5000.
+
+3. How many diamonds are 0.99 carat?  1 carat?
+```{r}
+(ggplot(diamonds, aes(x = carat)) +
+   geom_histogram(binwidth = 0.01) +
+   coord_cartesian(xlim = c(0.9, 1.1), ylim = c(0, 50))
+)
+```
+There are around 1500 diamonds at 1.0 carats and about 20 at 0.99 carats.  I bet you can charge significantly more for 1.0 carats than you can for 0.99.
+
+4. 
+```
+(ggplot(diamonds, aes(x = carat)) +
+   geom_histogram(binwidth = 0.001) +
+   xlim = c(0.95, 1.15)
+)
+```
+If xlim and binwidth don't agree, returns error.
+Maybe.  I might be an idiot.
+
+## 7.4 Missing values
+1. drop the entire row with the strange values
+filter(between())
+
+2. replace the unusual values with missing values
+mutate()
+ifelse(test, yes, no)
+test -- logical vector (a condition to evaluate)
+yes -- value if TRUE
+no -- value if FALSE
+OR use case_when()
+### 7.4.1 Exercises
+1. What happens to missing values in a histogram?  In a bar chart?
+geom_histogram returns a message saying that it removed 8255 rows with stat_bin.
+geom_bar() removes 8255 rows containing non-finite values by stat_count.
+Not entire sure how they are different.
+```{r}
+(ggplot(flights, aes(x = dep_time)) +
+    geom_bar()
+ )
+```
+
+2. What does na.rm = TRUE do in mean() and sum()?
+Designating na.rm = TRUE removes the NA in what mean and sum calculate.  Given that NA takes over, I suspect that it makes mean and sum calculatable.
+```{r}
+sum(flights$dep_time, na.rm = TRUE)
+
+```
+
+## 7.5 Covariation
+covariation - tendency for the values of two or more variables to vary together in a related way
+### 7.5.1 A categorical and continuous variable
+visualize distribution of a continuous variable broken down by a categorical variable 
+geom_freqpoly() not that useful because height given by count (hides much smaller groups) 
+density -- count standardized so that the area under each frequency polygon is one
+
+```{r}
+ggplot(data = diamonds, mapping = aes(x = price, y = ..density..)) + 
+  geom_freqpoly(mapping = aes(colour = cut), binwidth = 500)
+```
+
+can be confusing to compare
+
+boxplot
+- box stretches from the 25th percentile to the 75th percentile (IQR)
+- line in middle of box displays the median
+- points are observations more than 1.5 times the IQR from either edge
+- whisker/line extends from box to farthest non-outlier point in the distribution
+
+reorder(VARIABLE TO BE REORDERED, VARIABLE TO REORDER BY, FUNCTION TO ANALYSE RE-ORDERER)
+```{r}
+ggplot(data = mpg, mapping = aes(x = reorder(class, hwy, FUN = median), y = hwy)) +
+  geom_boxplot()
+```
+
+coord_flip() flips the boxplot 90degrees
+```{r}
+ggplot(data = mpg, mapping = aes(x = reorder(class, hwy, FUN = median), y = hwy)) +
+  geom_boxplot() +
+   coord_flip()
+```
+
+### 7.5.1.1
+1. Use what you’ve learned to improve the visualisation of the departure times of cancelled vs. non-cancelled flights.
+Adjusting geom_freqpoly to display the distribution by density negates the issue of not-many-cancelled flights.
+```{r}
+flights %>% 
+  mutate(
+    cancelled = is.na(dep_time),
+    sched_hour = sched_dep_time %/% 100,
+    sched_min = sched_dep_time %% 100,
+    sched_dep_time = sched_hour + sched_min / 60
+  ) %>%
+   ggplot(mapping = aes(x = sched_dep_time)) +
+   geom_freqpoly(aes(y = ..density.., color = cancelled, binwidth = 1/4))
+```
+
+2. What variable in the diamonds dataset is most important for predicting the price of a diamond? How is that variable correlated with cut? Why does the combination of those two relationships lead to lower quality diamonds being more expensive?
+
+```{r}
+ggplot(diamonds, aes(x = carat, y = price)) +
+   geom_point(aes(color = cut))
+```
+
+3. Install the ggstance package, and create a horizontal boxplot. How does this compare to using coord_flip()?
+```
+install.packages("ggstance")
+```
+
+```{r}
+library("ggstance")
+```
+```{r}
+(ggplot(data = mpg, mapping = aes(x = reorder(class, hwy, FUN = median), y = hwy)) +
+  geom_boxplot() +
+   coord_flip())
+
+(ggplot(data = mpg, mapping = aes(x = hwy, y = reorder(class, hwy, FUN = median))) + 
+  geom_boxploth()
+)
+```
+
+Identical plots.  One less line of code.
+
+5. Compare and contrast geom_violin() with a facetted geom_histogram(), or a coloured geom_freqpoly(). What are the pros and cons of each method?
+```{r}
+(ggplot(diamonds, aes(x = cut, y = price)) +
+   geom_violin(aes(color = cut))
+)
+
+(ggplot(diamonds, aes(x = price)) +
+  geom_histogram() +
+  facet_wrap(~ cut)
+)
+
+(ggplot(diamonds, aes(x = price, y = ..density..)) +
+   geom_freqpoly(aes(color = cut))
+)
+```
+
+The violin plots are probably the best for comparing the overall shape of the distributions among the other viarable.  The faceted histogram gives each shapes distribution and also gives you an idea of the counts.  The freqpoly is the best for comparing specific regions.
+
+6.
+```
+install.packages("ggbeeswarm")
+```
+
+```{r}
+library("ggbeeswarm")
+```
+
+These methods don't work well with the diamonds dataset because it's too big!
+```
+(ggplot(diamonds, aes(x = cut, y = price)) +
+   geom_quasirandom()
+)
+```
+
+### 7.5.2 Two categorical variables
+count the number of observations in each combination
+geom_count() -- displays a circle whose size represents the count
+OR
+compute the count with dplyr and visualized with geom_tile
+
+if categorical variables unordered, seriation package simultaneously reorders rows and columns
+d3heatmap or heatmaply packages create interactive plots
+
+### 7.5.3 Two continuous variables
+SCATTERPLOTS
+overplotting -- use alpha to add transparency
+bin in two dimensions
+
+geom_bin2d()[rectange] and geom_hex()[hexagonal bins] divide coordinate plan into 2d bins and use a fill color to display how many points
+
+alternatively, bin one of the continuous variables and use a continuous-categorical visualization tool
+cut_width(VARIABLE, BINWIDTH)
+```{r}
+ggplot(data = diamonds, mapping = aes(x = carat, y = price)) + 
+  geom_boxplot(mapping = aes(group = cut_width(carat, 0.1, varwidth = TRUE)))
+```
+cut_number(variable, number of points) displays about the same number of points in each bin
+
+### Exercises
+An experiment where two categorical variables would need to be compared -- I mean, this is dumb, but generation (baby boomer, millenial, etc) and highest level of education.
+
+Two continuous variables: days after germination by number of leaves.
+
+## 7.6 Patterns and models
+variation creates uncertainty; covariation reduces it
+if two variables covary, you can use one to make predictions about the second
+not all covarying variables have a causal relationship
+
+
+# 8. Workflow: projects
+## 8.1 What is real?
+Ctrl + Shift + F10 restarts RStudio
+Ctrl + Shift + S reruns the current script
+
+## 8.2 Where does your analysis live?
+working directory
+shown at the top of the console
+
+## 8.3 Paths and directories
+to get a single backslash, type two backslashes
+don't use absolute paths
+in Windows ~ points to documents directory
+
+## 8.4 RStudio projects
+
+
+
+
+
