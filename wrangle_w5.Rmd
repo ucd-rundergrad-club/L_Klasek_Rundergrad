@@ -1,0 +1,181 @@
+---
+title: 'Week 5: Wrangle Data I'
+output:
+  html_document:
+    df_print: paged
+---
+
+# Chapter 10: Tibbles
+## 10.2 
+as_tibble() coerces a dataframe into a tibble
+tibble(
+  x = 1:5, 
+  y = 1, 
+  z = x^2 + y 
+) creates a tibble
+
+tribble() = transposed tibble, written in verticle form
+tribble(
+  ~column_name, ~column_name2,
+  "A", 2, 3.6
+  "B", 4, 9.2
+)
+
+## 10.3 Tibbles vs data.frame
+tibbles print only 10 rows when called; columns print their data type
+can explicitly print(n = #rows, width = Inf (all columns) or #)
+
+$ pulls out a single variable by name
+[[]] pulls out by name or position
+if used in pipes, have to start with . -- df %>% .$x
+
+## 10.4 Interacting with older code
+as.data.frame()  
+
+```{r}
+library("tidyverse")
+```
+
+## 10.5 Exercises
+1. How can you tell if an object is a tibble?  
+Regular data frames print out the entire data frame and do not provide information about the data type in each column if printed in the console.  Tibbles only print 10 rows in the console and also provide the data type.
+```{r}
+newcars <- as_tibble(mtcars)
+```
+
+2. Compare and contrast the following operations on a data.frame and equivalent tibble. What is different? Why might the default data frame behaviours cause you frustration?
+```{r}
+df <- data.frame(abc = 1, xyz = "a") #automatically sets string as factor
+tb <- tibble(abc = 1, xyz = "a")
+# (df$x) #partial match on "xyz" subsets to just single value in that column, ends up not a data.frame at all
+# (tb$x) #no partial matches
+# (df[, "xyz"]) #finds the value in that column but takes it out of the dataframe context
+# (tb[, "xyz"]) #subsets to that one particular column, stays as tibble
+(df[, c("abc", "xyz")])
+(tb[, c("abc", "xyz")])
+```
+
+4. Practice referring to non-syntactic names in the following data frame by:
+```{r}
+annoying <- tibble(
+  `1` = 1:10,
+  `2` = `1` * 2 + rnorm(length(`1`))
+)
+#Extracting the variable called 1.
+(annoying$`1`)
+
+# Plotting a scatterplot of 1 vs 2.
+(ggplot(annoying, aes(x = `1`, y = `2`)) +
+  geom_point()
+)
+
+# Creating a new column called 3 which is 2 divided by 1.
+annoying <- mutate(annoying, `3` = `2` / `1`)
+
+# Renaming the columns to one, two and three.
+rename(annoying, 
+       "one" = `1`,
+       "two" = `2`,
+       "three" = `3`)
+```
+
+5. What does tibble::enframe() do? When might you use it?  
+According to the help, enframe() converts vectrs or lists to one or two column data frames.  So if you have a list and you want to work with it as a dataframe, you can use this method?
+
+# Chapter 11: Data Import
+## 11.1 Getting started
+read_csv() -- comma delimited
+read_csv2() -- semicolumn delimited
+read_tsv() -- tab delimited
+read_delim() -- any delimiter
+
+read_fwf() -- fixed width files
+  fwf_widths()
+  fwf_positions
+  read_table() -- columns separated by white space
+
+read_log() -- Apache style log files
+
+read_csv(PATH)
+if you want to skip a couple lines of metadata, use skip = n (#lines) or comment = "#" (drops all lines that start with #, for exxample)
+col_names = FALSE tells read_csv() not to treat the first row as headings
+can also pass in a character vector to give column names
+
+### 11.2.2 Exercises
+1. What function would you use to read a file where fields were separated with
+“|”?
+read_delim(PATH, delim = "|")
+
+4. Sometimes strings in a CSV file contain commas. To prevent them from causing problems they need to be surrounded by a quoting character, like " or '. By convention, read_csv() assumes that the quoting character will be ", and if you want to change it you’ll need to use read_delim() instead. What arguments do you need to specify to read the following text into a data frame?
+```{r}
+read_delim("x,y\n1,'a,b'", delim = ",", quote = "\'")
+```
+
+5. Identify what is wrong with each of the following inline CSV files. What happens when you run the code?
+
+```{r}
+read_csv("a,b\n1,2,3\n4,5,6") # does not specify enough columns for the subsequent lines, ignores the values that don't fit
+read_csv("a,b,c\n1,2\n1,2,3,4") #second row has too few (read in third as NA), third row has too many (truncates)
+read_csv("a,b\n\"1") #incorrectly entered newline character?  and has no second value in second row
+read_csv("a,b\n1,2\na,b") #looks okay?  unless that \na is supposed to put an NA
+read_csv("a;b\n1;3") #wrong delim
+```
+
+
+## 11.3 Parsing a vector 
+parse_*(CHARACTER VECTOR, na = "character used for NA")
+whenever parsing fails, will give warning and failures will be missing from the output
+problems() returns a tibble of all the parsing failures in a vector
+
+### 11.3.1 Numbers
+if you need to change the character for a decimal point, use locale argument and specify locale(decimal_mark = ",")
+parse_number() ignores miscellaneous characters (i.e. the $ in $123.40); can also set the locale "grouping_mark"
+
+### 11.3.2 Strings
+readr uses UTF-8
+if using a different encoding, specify in locale(encoding)
+if you are not sure what encoding is being used, try guess_encoding
+
+### 11.3.3 Factors
+levels argument calls up a vector of the known set of categorical variables; catches typos and unexpected values
+
+### 11.3.4 Dates, date-times, times
+parse_datetime() expects ISO8601 -- year-month-day hourMinuteSecond
+```parse_datetime("2010-10-01T2010")
+#> [1] "2010-10-01 20:10:00 UTC"
+# If time is omitted, it will be set to midnight
+```
+parse_date() expects 4 digit year - or / month -or/ date
+parse_time() expects hour : minutes : seconds, optional am/pm
+
+you can also build your own.  ack.
+
+### 11.3.5 Exercises
+1. What are the most important arguments to locale()?
+
+2. What happens if you try and set decimal_mark and grouping_mark to the same character? What happens to the default value of grouping_mark when you set decimal_mark to “,”? What happens to the default value of decimal_mark when you set the grouping_mark to “.”?
+
+3. I didn’t discuss the date_format and time_format options to locale(). What do they do? Construct an example that shows when they might be useful.
+
+7. Generate the correct format string to parse each of the following dates and times:
+
+d1 <- "January 1, 2010"
+d2 <- "2015-Mar-07"
+d3 <- "06-Jun-2017"
+d4 <- c("August 19 (2015)", "July 1 (2015)")
+d5 <- "12/30/14" # Dec 30, 2014
+t1 <- "1705"
+t2 <- "11:15:10.12 PM"
+
+
+
+
+
+
+
+
+
+
+
+
+
